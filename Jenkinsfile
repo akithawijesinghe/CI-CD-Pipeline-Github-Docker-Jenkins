@@ -11,29 +11,33 @@ pipeline {
         }
         stage('Build Docker Image') {
             steps {  
-                bat 'docker build -t akithawj/cicd-node-jen:%BUILD_NUMBER% .'
+                script {
+                    bat 'docker build -t akithawj/cicd-node-jen:%BUILD_NUMBER% .'
+                }
             }
         }
         stage('Login to Docker Hub') {
             steps {
-                withCredentials([string(credentialsId: 'dockerhub-pass', variable: 'dockerpass')]) {
-                    
-                    script {
-                        bat "docker login -u akithawj -p %dockerpass%"
+                script {
+                    withCredentials([string(credentialsId: 'docker-pass', variable: 'dockerpass-vari')]) {
+                        bat 'docker login -u akithawj -p %dockerpass-vari%'
                     }
-                    
                 }
             }
         }
         stage('Push Image') {
             steps {
-                bat 'docker push akithawj/cicd-node-jen:%BUILD_NUMBER%'
+                script {
+                    bat 'docker push akithawj/cicd-node-jen:%BUILD_NUMBER%'
+                }
             }
         }
     }
     post {
         always {
-            bat 'docker logout'
+            script {
+                bat 'docker logout'
+            }
         }
     }
 }
